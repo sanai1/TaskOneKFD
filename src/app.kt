@@ -8,10 +8,10 @@ var f1 = true
 val capitalUser = mutableMapOf("RUB" to 1000000*100, "USD" to 0, "EUR" to 0, "USDT" to 0, "BTC" to 0)
 
 // начальные средства терминала
-val capitalTerminal = mutableMapOf("RUB" to 10000*100, "USD" to 1000*100, "EUR" to 1000*100, "USDT" to 1000*100, "BTC" to 15*1000000)
+val capitalTerminal = mutableMapOf("RUB" to 10000*100, "USD" to 1000*100, "EUR" to 1000*100, "USDT" to 1000*100, "BTC" to 15*100000)
 
 // курс валютных пар
-var course = arrayOf(90, 95, 11, 10, 4)
+var course = arrayOf(900, 950, 110, 100, 400)
 
 // наименование валютных пар
 var pairCourse = arrayOf(Pair("RUB", "USD"), Pair("RUB", "EUR"), Pair("USD", "EUR"), Pair("USD", "USDT"), Pair("USD", "BTC"))
@@ -178,7 +178,7 @@ fun exchange(exchange: Int, numCourse: Int, count: Int): Pair<Boolean> {
         }
     } else {
         if (capitalTerminal[pairCourse[numCourse - 1].getSecond()]!! >= count) {
-            var delta = count*course[numCourse - 1]
+            val delta = count*course[numCourse - 1]
             if (capitalUser[pairCourse[numCourse - 1].getFirst()]!! >= delta) {
                 capitalTerminal[pairCourse[numCourse - 1].getSecond()] = capitalTerminal[pairCourse[numCourse - 1].getSecond()]!! - count
                 capitalUser[pairCourse[numCourse - 1].getSecond()] = capitalUser[pairCourse[numCourse - 1].getSecond()]!! + count
