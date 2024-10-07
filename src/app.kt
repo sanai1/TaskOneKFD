@@ -11,7 +11,7 @@ val capitalUser = mutableMapOf("RUB" to 1000000*100, "USD" to 0, "EUR" to 0, "US
 val capitalTerminal = mutableMapOf("RUB" to 10000*100, "USD" to 1000*100, "EUR" to 1000*100, "USDT" to 1000*100, "BTC" to 15*1000000)
 
 // курс валютных пар
-var course = arrayOf(90*100, 95*100, 11*10, 1*100, 45000*100)
+var course = arrayOf(90, 95, 11, 10, 4)
 
 // наименование валютных пар
 var pairCourse = arrayOf(Pair("RUB", "USD"), Pair("RUB", "EUR"), Pair("USD", "EUR"), Pair("USD", "USDT"), Pair("USD", "BTC"))
@@ -42,9 +42,9 @@ fun printCapitalUser(n: Int) {
     println("На вашем счету:")
     for (i in 0..4) {
         if (i == 4)
-            println("${i+1}. ${nameCurrency[i]} = ${capitalUser[nameCurrency[i]]!!.toDouble()/10000000}")
+            println("${i+1}. ${nameCurrency[i]} = ${capitalUser[nameCurrency[i]]}")
         else
-            println("${i+1}. ${nameCurrency[i]} = ${capitalUser[nameCurrency[i]]!!.toDouble()/100}")
+            println("${i+1}. ${nameCurrency[i]} = ${capitalUser[nameCurrency[i]]}")
     }
 }
 
@@ -53,9 +53,9 @@ fun printCapitalTerminal() {
     println("Счет терминала:")
     for (i in 0..4) {
         if (i == 4)
-            println("${i+1}. ${nameCurrency[i]} = ${capitalTerminal[nameCurrency[i]]!!.toDouble()/10000000}")
+            println("${i+1}. ${nameCurrency[i]} = ${capitalTerminal[nameCurrency[i]]}")
         else
-            println("${i+1}. ${nameCurrency[i]} = ${capitalTerminal[nameCurrency[i]]!!.toDouble()/100}")
+            println("${i+1}. ${nameCurrency[i]} = ${capitalTerminal[nameCurrency[i]]}")
     }
 }
 
@@ -67,7 +67,7 @@ fun printCourse(n: Int) {
     }
     println("Актуальные обменные курсы:")
     for (i in 0..4) {
-        println("${i+1}. ${pairCourse[i].getFirst()}/${pairCourse[i].getSecond()} = ${course[i].toDouble()/100}")
+        println("${i+1}. ${pairCourse[i].getFirst()}/${pairCourse[i].getSecond()} = ${course[i]}")
     }
 }
 
@@ -130,9 +130,9 @@ fun printBuy(numCourse : Int) {
 fun checkCourse(numCourse: Int, exchange: Int): Int {
     return if (numCourse in 1..5) {
         if (exchange == 1) {
-            min(capitalTerminal[pairCourse[numCourse-1].getFirst()]!!, capitalUser[pairCourse[numCourse-1].getSecond()]!! * course[numCourse-1])
+            min(capitalTerminal[pairCourse[numCourse-1].getFirst()]!! / course[numCourse - 1], capitalUser[pairCourse[numCourse-1].getSecond()]!!)
         } else {
-            min(capitalTerminal[pairCourse[numCourse-1].getSecond()]!!, capitalUser[pairCourse[numCourse-1].getFirst()] !!* course[numCourse-1])
+            min(capitalTerminal[pairCourse[numCourse-1].getSecond()]!!, capitalUser[pairCourse[numCourse-1].getFirst()]!! / course[numCourse - 1])
         }
     } else {
         -1
@@ -143,22 +143,18 @@ fun checkCourse(numCourse: Int, exchange: Int): Int {
 fun printExchange(numCourse: Int, exchange: Int): Int {
     val a = if (numCourse in 1..5) {
         if (exchange == 1) {
-            pairCourse[numCourse].getFirst()
+            pairCourse[numCourse - 1].getFirst()
         } else {
-            pairCourse[numCourse].getSecond()
+            pairCourse[numCourse - 1].getSecond()
         }
     } else {
         ""
     }
     val checkCourse = checkCourse(numCourse, exchange)
-    if (checkCourse == -1) {
+    if (checkCourse == -1 || checkCourse == 0) {
         return -1
     }
-    if (numCourse == 5 && exchange == 2) {
-        println("Введите сумму от 0.001 $a до $checkCourse $a")
-    } else {
-        println("Введите сумму от 0.01 $a до $checkCourse $a")
-    }
+    println("Введите сумму от 1 $a до $checkCourse $a")
     return 1
 }
 
@@ -235,10 +231,10 @@ fun main() {
         }
         ans = ""
 
-        var y_n = ""
+        var yN = ""
 
         while (f1) {
-            when(y_n) {
+            when(yN) {
                 "выйти" -> {
                     printCapitalUser(0)
                     f1 = false
@@ -256,12 +252,12 @@ fun main() {
                 }
                 else -> println("Некорректный ввод. Повторите попытку")
             }
-            y_n = checkInput(readlnOrNull()?.lowercase()!!.replace(',', '.'))
+            yN = checkInput(readlnOrNull()?.lowercase()!!.replace(',', '.'))
 
-            var exchange = if (y_n == "1") 1
-            else if (y_n == "2") 2
+            val exchange = if (yN == "1") 1
+            else if (yN == "2") 2
             else continue
-            y_n = ""
+            yN = ""
 
             var cnt = ""
             var nowExchange = true
@@ -285,6 +281,7 @@ fun main() {
                             "small" -> println("Введена сумма менее допустимой")
                             "person" -> println("У вас недостаточно средств для совершения обмена")
                             "terminal" -> println("Терминалу не хватает средств для совершения обмена")
+                            "fraction" -> println("Необходимо ввести целое число")
                             "fail" -> {
                                 println("Невозможно провести обмен")
                                 break
@@ -293,27 +290,25 @@ fun main() {
                         println("Введите новую сумму")
                     }
                 }
-                cnt = if (nowExchange) {
-                    checkInput(readlnOrNull()?.lowercase()!!.replace(',', '.'))
+                if (nowExchange) {
+                    cnt = checkInput(readlnOrNull()?.lowercase()!!.replace(',', '.'))
                 } else {
-                    "fail"
+                    cnt = "fail"
+                    nowExchange = true
                 }
-                val a = cnt.substringBefore('.')
-                val b = cnt.substringAfter('.')
-                val len_b = b.length
+
                 var count: Int
                 try {
-                    val n = 10
-                    count = if (cnt.substringAfter('.').length == 1) {
-                        a.toInt()*100 + b.toInt()*10
-                    } else {
-                        a.toInt()*100 + b.toInt()
-                    }
+                    count = cnt.toInt()
                     if (count <= 0) {
                         cnt = "negative"
                         continue
                     }
                 } catch (e: Exception) {
+                    if (!cnt.substringAfter('.').isNotEmpty()) {
+                        cnt = "fraction"
+                        continue
+                    }
                     if (cnt.equals("end") || cnt.equals("меню") || cnt.equals("назад") || cnt.equals("выйти") || cnt.equals("fail"))
                         continue
                     cnt = "string"
@@ -328,10 +323,10 @@ fun main() {
                     f1 = false
                     trade = true
                 } else {
-                    if (!pair.getFirst())
-                        cnt = "person"
+                    cnt = if (!pair.getFirst())
+                        "person"
                     else
-                        cnt = "terminal"
+                        "terminal"
                 }
             }
         }
