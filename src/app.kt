@@ -10,11 +10,29 @@ val capitalUser = mutableMapOf("RUB" to 1000000*100, "USD" to 0, "EUR" to 0, "US
 // начальные средства терминала
 val capitalTerminal = mutableMapOf("RUB" to 10000*100, "USD" to 1000*100, "EUR" to 1000*100, "USDT" to 1000*100, "BTC" to 15*100000)
 
-// курс валютных пар
-var course = arrayOf(900, 950, 110, 100, 400)
+// структура для хранения курсов
+class Course(private val nameOne: String, private var nameTwo: String, private var course: Int) {
+    fun getNameOne(): String {
+        return this.nameOne
+    }
+    fun getNameTwo(): String {
+        return this.nameTwo
+    }
+    fun getCourse(): Int {
+        return this.course
+    }
+    fun setCourse(course: Int) {
+        this.course = course
+    }
+}
 
-// наименование валютных пар
-var pairCourse = arrayOf(Pair("RUB", "USD"), Pair("RUB", "EUR"), Pair("USD", "EUR"), Pair("USD", "USDT"), Pair("USD", "BTC"))
+// массив со всеми валютными парами
+var courseClass = arrayOf(
+    Course("RUB", "USD", 900),
+    Course("RUB", "EUR", 950),
+    Course("USD", "EUR", 110),
+    Course("USD", "USDT", 100),
+    Course("USD", "BTC", 400))
 
 // вспомогательный класс - полиморфная пара
 class Pair<T>(private var first: T, private var second: T) {
@@ -40,7 +58,7 @@ fun printCapitalUser(n: Int) {
     if (n == 0)
         print("До свидания! Сессия завершена. ")
     println("На вашем счету:")
-    for (i in 0..4) {
+    for (i in 0..nameCurrency.size) {
         if (i == 4)
             println("${i+1}. ${nameCurrency[i]} = ${capitalUser[nameCurrency[i]]}")
         else
@@ -51,7 +69,7 @@ fun printCapitalUser(n: Int) {
 // печать счета терминала
 fun printCapitalTerminal() {
     println("Счет терминала:")
-    for (i in 0..4) {
+    for (i in 0..nameCurrency.size) {
         if (i == 4)
             println("${i+1}. ${nameCurrency[i]} = ${capitalTerminal[nameCurrency[i]]}")
         else
@@ -66,8 +84,8 @@ fun printCourse(n: Int) {
         println("--------------------")
     }
     println("Актуальные обменные курсы:")
-    for (i in 0..4) {
-        println("${i+1}. ${pairCourse[i].getFirst()}/${pairCourse[i].getSecond()} = ${course[i]}")
+    for (i in courseClass.indices) {
+        println("${i+1}. ${courseClass[i].getNameOne()}/${courseClass[i].getNameTwo()} = ${courseClass[i].getCourse()}")
     }
 }
 
@@ -115,24 +133,24 @@ fun getRandomNum() : Int {
 
 // изменение курса валютных пар
 fun updateCourse() {
-    for (i in 0..4) {
-        course[i] += (course[i].toDouble()*getRandomNum().toDouble()/1000).toInt()
+    for (i in courseClass.indices) {
+        courseClass[i].setCourse(courseClass[i].getCourse() + (courseClass[i].getCourse().toDouble() * getRandomNum().toDouble() / 1000).toInt())
     }
 }
 
 // сообщение покупка/продажа в зависимости от валютной пары
 fun printBuy(numCourse : Int) {
-    println("Обменять ${pairCourse[numCourse-1].getSecond()} на ${pairCourse[numCourse-1].getFirst()}, введите '1'")
-    println("Обменять ${pairCourse[numCourse-1].getFirst()} на ${pairCourse[numCourse-1].getSecond()}, введите '2'")
+    println("Обменять ${courseClass[numCourse-1].getNameTwo()} на ${courseClass[numCourse-1].getNameOne()}, введите '1'")
+    println("Обменять ${courseClass[numCourse-1].getNameOne()} на ${courseClass[numCourse-1].getNameTwo()}, введите '2'")
 }
 
 // проверка на максимально возможный обмен валюты
 fun checkCourse(numCourse: Int, exchange: Int): Int {
-    return if (numCourse in 1..5) {
+    return if (numCourse in 1..courseClass.size) {
         if (exchange == 1) {
-            min(capitalTerminal[pairCourse[numCourse-1].getFirst()]!! / course[numCourse - 1], capitalUser[pairCourse[numCourse-1].getSecond()]!!)
+            min(capitalTerminal[courseClass[numCourse-1].getNameOne()]!! / courseClass[numCourse - 1].getCourse(), capitalUser[courseClass[numCourse-1].getNameTwo()]!!)
         } else {
-            min(capitalTerminal[pairCourse[numCourse-1].getSecond()]!!, capitalUser[pairCourse[numCourse-1].getFirst()]!! / course[numCourse - 1])
+            min(capitalTerminal[courseClass[numCourse-1].getNameTwo()]!!, capitalUser[courseClass[numCourse-1].getNameOne()]!! / courseClass[numCourse - 1].getCourse())
         }
     } else {
         -1
@@ -141,11 +159,11 @@ fun checkCourse(numCourse: Int, exchange: Int): Int {
 
 // сообщение объем обмена
 fun printExchange(numCourse: Int, exchange: Int): Int {
-    val a = if (numCourse in 1..5) {
+    val a = if (numCourse in 1..courseClass.size) {
         if (exchange == 1) {
-            pairCourse[numCourse - 1].getFirst()
+            courseClass[numCourse - 1].getNameOne()
         } else {
-            pairCourse[numCourse - 1].getSecond()
+            courseClass[numCourse - 1].getNameTwo()
         }
     } else {
         ""
@@ -162,14 +180,14 @@ fun printExchange(numCourse: Int, exchange: Int): Int {
 fun exchange(exchange: Int, numCourse: Int, count: Int): Pair<Boolean> {
     val pairBool = Pair(first = true, second = true)
     if (exchange == 1) {
-        val delta = floor(count / course[numCourse - 1].toDouble()).toInt()
-        if (capitalUser[pairCourse[numCourse - 1].getSecond()]!! >= delta) {
-            if (capitalTerminal[pairCourse[numCourse - 1].getFirst()]!! >= count) {
-                capitalUser[pairCourse[numCourse - 1].getSecond()] = capitalUser[pairCourse[numCourse - 1].getSecond()]!! - delta
-                capitalTerminal[pairCourse[numCourse - 1].getSecond()] = capitalTerminal[pairCourse[numCourse - 1].getSecond()]!! + delta
-                capitalTerminal[pairCourse[numCourse - 1].getFirst()] = capitalTerminal[pairCourse[numCourse - 1].getFirst()]!! + count
-                capitalUser[pairCourse[numCourse - 1].getFirst()] = capitalUser[pairCourse[numCourse - 1].getFirst()]!! - count
-                println("Продано $delta ${pairCourse[numCourse - 1].getSecond()} за $count ${pairCourse[numCourse - 1].getFirst()}")
+        val delta = floor(count / courseClass[numCourse - 1].getCourse().toDouble()).toInt()
+        if (capitalUser[courseClass[numCourse - 1].getNameTwo()]!! >= delta) {
+            if (capitalTerminal[courseClass[numCourse - 1].getNameOne()]!! >= count) {
+                capitalUser[courseClass[numCourse - 1].getNameTwo()] = capitalUser[courseClass[numCourse - 1].getNameTwo()]!! - delta
+                capitalTerminal[courseClass[numCourse - 1].getNameTwo()] = capitalTerminal[courseClass[numCourse - 1].getNameTwo()]!! + delta
+                capitalTerminal[courseClass[numCourse - 1].getNameOne()] = capitalTerminal[courseClass[numCourse - 1].getNameOne()]!! + count
+                capitalUser[courseClass[numCourse - 1].getNameOne()] = capitalUser[courseClass[numCourse - 1].getNameOne()]!! - count
+                println("Продано $delta ${courseClass[numCourse - 1].getNameTwo()} за $count ${courseClass[numCourse - 1].getNameOne()}")
             } else {
                 pairBool.setSecond(false)
             }
@@ -177,14 +195,14 @@ fun exchange(exchange: Int, numCourse: Int, count: Int): Pair<Boolean> {
             pairBool.setFirst(false)
         }
     } else {
-        if (capitalTerminal[pairCourse[numCourse - 1].getSecond()]!! >= count) {
-            val delta = count*course[numCourse - 1]
-            if (capitalUser[pairCourse[numCourse - 1].getFirst()]!! >= delta) {
-                capitalTerminal[pairCourse[numCourse - 1].getSecond()] = capitalTerminal[pairCourse[numCourse - 1].getSecond()]!! - count
-                capitalUser[pairCourse[numCourse - 1].getSecond()] = capitalUser[pairCourse[numCourse - 1].getSecond()]!! + count
-                capitalUser[pairCourse[numCourse - 1].getFirst()] = capitalUser[pairCourse[numCourse - 1].getFirst()]!! - delta
-                capitalTerminal[pairCourse[numCourse - 1].getFirst()] = capitalTerminal[pairCourse[numCourse - 1].getFirst()]!! + delta
-                println("Куплено $count ${pairCourse[numCourse - 1].getSecond()} за $delta ${pairCourse[numCourse - 1].getFirst()}")
+        if (capitalTerminal[courseClass[numCourse - 1].getNameTwo()]!! >= count) {
+            val delta = count*courseClass[numCourse - 1].getCourse()
+            if (capitalUser[courseClass[numCourse - 1].getNameOne()]!! >= delta) {
+                capitalTerminal[courseClass[numCourse - 1].getNameTwo()] = capitalTerminal[courseClass[numCourse - 1].getNameTwo()]!! - count
+                capitalUser[courseClass[numCourse - 1].getNameTwo()] = capitalUser[courseClass[numCourse - 1].getNameTwo()]!! + count
+                capitalUser[courseClass[numCourse - 1].getNameOne()] = capitalUser[courseClass[numCourse - 1].getNameOne()]!! - delta
+                capitalTerminal[courseClass[numCourse - 1].getNameOne()] = capitalTerminal[courseClass[numCourse - 1].getNameOne()]!! + delta
+                println("Куплено $count ${courseClass[numCourse - 1].getNameTwo()} за $delta ${courseClass[numCourse - 1].getNameOne()}")
             } else {
                 pairBool.setFirst(false)
             }
