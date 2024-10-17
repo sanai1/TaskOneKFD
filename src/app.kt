@@ -2,7 +2,7 @@ import kotlin.math.floor
 import kotlin.math.min
 import kotlin.random.Random
 
-var f1 = true
+var terminalWork = true
 
 // начальные средства пользователя
 val capitalUser = mutableMapOf("RUB" to 1000000*100, "USD" to 0, "EUR" to 0, "USDT" to 0, "BTC" to 0)
@@ -58,7 +58,7 @@ fun printCapitalUser(n: Int) {
     if (n == 0)
         print("До свидания! Сессия завершена. ")
     println("На вашем счету:")
-    for (i in 0..nameCurrency.size) {
+    for (i in nameCurrency.indices) {
         if (i == 4)
             println("${i+1}. ${nameCurrency[i]} = ${capitalUser[nameCurrency[i]]}")
         else
@@ -69,7 +69,7 @@ fun printCapitalUser(n: Int) {
 // печать счета терминала
 fun printCapitalTerminal() {
     println("Счет терминала:")
-    for (i in 0..nameCurrency.size) {
+    for (i in nameCurrency.indices) {
         if (i == 4)
             println("${i+1}. ${nameCurrency[i]} = ${capitalTerminal[nameCurrency[i]]}")
         else
@@ -219,20 +219,20 @@ fun main() {
     printCourse(1)
 
     var ans = ""
-    var trade = false
-    while (f1 || trade) {
-        if (trade) {
-            trade = false
-            f1 = true
+    var transactionSuccessful = false
+    while (terminalWork || transactionSuccessful) {
+        if (transactionSuccessful) {
+            transactionSuccessful = false
+            terminalWork = true
         }
-        if (ans.equals("выйти") || ans.equals("назад")) {
+        if (ans == "выйти" || ans == "назад") {
             printCapitalUser(0)
-            f1 = false
+            terminalWork = false
             continue
         }
-        if (ans.isEmpty() || ans.equals("end")) {
+        if (ans.isEmpty() || ans == "end") {
             println("Выберите валютную пару, написав ее номер в консоль:")
-        } else if (ans.equals("меню")) {
+        } else if (ans == "меню") {
             printMenu(1)
             println("Выберите валютную пару, написав ее номер в консоль:")
         } else {
@@ -243,19 +243,19 @@ fun main() {
         var numCourse: Int
         try {
             numCourse = ans.toInt()
-            if (numCourse !in 1..5) continue
+            if (numCourse !in 1..courseClass.size) continue
         } catch (e: Exception) {
             continue
         }
         ans = ""
 
-        var yN = ""
+        var yesORno = ""
 
-        while (f1) {
-            when(yN) {
+        while (terminalWork) {
+            when(yesORno) {
                 "выйти" -> {
                     printCapitalUser(0)
-                    f1 = false
+                    terminalWork = false
                     break
                 }
                 "назад" -> {
@@ -270,20 +270,20 @@ fun main() {
                 }
                 else -> println("Некорректный ввод. Повторите попытку")
             }
-            yN = checkInput(readlnOrNull()?.lowercase()!!.replace(',', '.'))
+            yesORno = checkInput(readlnOrNull()?.lowercase()!!.replace(',', '.'))
 
-            val exchange = if (yN == "1") 1
-            else if (yN == "2") 2
+            val exchange = if (yesORno == "1") 1
+            else if (yesORno == "2") 2
             else continue
-            yN = ""
+            yesORno = ""
 
             var cnt = ""
             var nowExchange = true
-            while (f1) {
+            while (terminalWork) {
                 when(cnt) {
                     "выйти" -> {
                         printCapitalUser(0)
-                        f1 = false
+                        terminalWork = false
                         break
                     }
                     "назад" -> break
@@ -323,11 +323,11 @@ fun main() {
                         continue
                     }
                 } catch (e: Exception) {
-                    if (!cnt.substringAfter('.').isNotEmpty()) {
+                    if (cnt.substringAfter('.').isEmpty()) {
                         cnt = "fraction"
                         continue
                     }
-                    if (cnt.equals("end") || cnt.equals("меню") || cnt.equals("назад") || cnt.equals("выйти") || cnt.equals("fail"))
+                    if (cnt == "end" || cnt == "меню" || cnt == "назад" || cnt == "выйти" || cnt == "fail")
                         continue
                     cnt = "string"
                     continue
@@ -338,8 +338,8 @@ fun main() {
                 if (pair.getFirst() && pair.getSecond()) {
                     updateCourse()
                     printCourse(1)
-                    f1 = false
-                    trade = true
+                    terminalWork = false
+                    transactionSuccessful = true
                 } else {
                     cnt = if (!pair.getFirst())
                         "person"
@@ -348,7 +348,7 @@ fun main() {
                 }
             }
         }
-        if (!f1) continue
+        if (!terminalWork) continue
         ans = ""
     }
 }

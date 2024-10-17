@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4cf4be57-51c4-4429-9c47-c148123ed536" name="Changes" comment="calculations have been changed - there are no fractions, everything is in integers">
+    <list default="true" id="4cf4be57-51c4-4429-9c47-c148123ed536" name="Changes" comment="add class Course">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.kt" afterDir="false" />
     </list>
@@ -94,7 +94,15 @@
       <option name="project" value="LOCAL" />
       <updated>1728344827990</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="add class Course">
+      <option name="closed" value="true" />
+      <created>1729021522683</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1729021522683</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -112,6 +120,7 @@
     <MESSAGE value="initial commit (app.kt)" />
     <MESSAGE value="first version, debugging is required" />
     <MESSAGE value="calculations have been changed - there are no fractions, everything is in integers" />
-    <option name="LAST_COMMIT_MESSAGE" value="calculations have been changed - there are no fractions, everything is in integers" />
+    <MESSAGE value="add class Course" />
+    <option name="LAST_COMMIT_MESSAGE" value="add class Course" />
   </component>
 </project>
